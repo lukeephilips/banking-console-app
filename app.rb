@@ -1,100 +1,64 @@
+#!/usr/bin/env ruby
+
+require './user';
+require 'thor';
+require 'tty-prompt';
+require 'pry';
+# require "sinatra"
+# require "sinatra/reloader"
+# also_reload('user.rb')
+
 @@users = [];
 @@user = nil;
+@@choices = [%w(login create_account)];
 
 class App
+  def self.user
+    @@user
+  end
+  def self.users
+    @@users
+  end
+
   def self.login (name, password)
-    user = self.user(name)
-    if user.password === password
+    user = self.current_user(name)
+    if user && user.password === password
       @@user = user
-      return 'welcome ' + @@user.name
+      puts 'welcome ' + @@user.name
+      @@choices = [%w(transaction check_balance history logout)]
     else
-      puts "wrong password"
+      puts "incorrect username or password"
     end
   end
   def self.logout
+    puts 'goodbye ' + @@user.name
     @@user = nil
-    puts 'goodbye'
+    @@choices = [%w(login create_account)]
   end
 
   def self.create_account(name, password)
-      new_user = User.new(name: 'name', password: 'password')
-      new_user.save
+    new_user = User.new(name: name, password: password)
+    new_user.save
   end
 
   def self.check_balance
-    @@user.balance
+    puts @@user.balance
   end
   def self.deposit(amount)
-    @@user.deposit(amount)
+    puts @@user.deposit(amount)
   end
   def self.withdraw(amount)
-    @@user.withdraw(amount)
+    puts @@user.withdraw(amount)
   end
   def self.history
-    @@user.history
+    puts @@user.history
   end
-
 
   def self.all
     @@users
   end
-  def self.user(name)
+  def self.current_user(name)
     @@users.select {|user| user.name === name}.first
-  end
-end
-
-private
-
-class User
-  require 'date'
-
-  def initialize attr
-    @name = attr[:name]
-    @password = attr[:password]
-    @balance = 0
-    @history = [];
-  end
-  def save
-    @@users.push self
-  end
-
-  def name
-    @name
-  end
-  def password
-    @password
-  end
-  def balance
-    puts 'user: '+ @name
-    puts 'balance: '+ @balance.to_s
-  end
-  def history
-    puts 'transaction history for ' + @name
-    puts "\n"
-    return @history.each do |transaction|
-    puts 'date: ' + transaction[:date].to_s
-    puts 'starting balance: ' + transaction[:starting_balance].to_s
-    puts 'transaction: ' + transaction[:transaction].to_s
-    puts 'new balance: ' + transaction[:ending_balance].to_s
-    puts "\n"
-    end
-
-  end
-
-  def deposit(amount)
-    new_balance = @balance + amount
-    save_history(amount, new_balance)
-
-    return @balance = new_balance
-  end
-  def withdraw(amount)
-    new_balance = @balance - amount
-    save_history(-amount, new_balance)
-    return @balance = new_balance
-  end
-
-  def save_history(amount, new_balance)
-    @history.push(transaction: -amount, starting_balance: @balance, ending_balance: new_balance, date: Date.today)
   end
 end
 
@@ -103,19 +67,60 @@ test.save
 test2 = User.new(name: "bill", password: "123")
 test2.save
 
-test.deposit(100)
-test.deposit(-50)
+test.deposit(100.00)
+test.deposit(-50.00)
+
+prompt = TTY::Prompt.new
+
+loop do
+  command = prompt.select("Select option", @@choices)
+  case command
+    when 'login'
+      name = prompt.ask('Username?')
+      password = prompt.ask('password?')
+      App.login(name, password)
+    when 'create_account'
+      name = prompt.ask('Username?')
+      password = prompt.ask('password?')
+      binding.pry
+      if !App.current_user(name)
+        App.create_account(name, password)
+      else
+        puts 'username already taken, select a new one'
+      end
+    when 'logout'
+      App.logout
+    when 'check_balance'
+      App.check_balance
+    when 'history'
+      App.history
+    when 'transaction'
+      transaction = prompt.select("Select option", [%w(deposit withdraw)])
+      amount = prompt.ask('Amount?').to_f.round(2)
+      if transaction === 'deposit'
+        App.deposit(amount)
+      elsif transaction === 'withdraw'
+        App.withdraw(amount)
+      end
+    else
+      puts 'invalid input'
+  end
+end
 
 # loop do
 #   input = gets.chomp
 #   command, *params = input.split /\s/
 #   case command
 #     when 'login'
-#       puts App.login
-#     when 'new'
-#       puts App.new_account
-#     when 'check'
-#       puts App.check_balance
+#       puts 'enter name'
+#       name = input
+#       puts name
+#
+#       # App.login('bob', '123')
+#     when 'check_balance'
+#       App.check_balance
+#     # when 'check'
+#     #   puts App.check_balance
 #     else
 #       puts 'Invalid command'
 #   end
