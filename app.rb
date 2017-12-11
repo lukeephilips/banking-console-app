@@ -1,127 +1,89 @@
 #!/usr/bin/env ruby
 
 require './user';
-require 'thor';
+require './interface';
 require 'tty-prompt';
 require 'pry';
-# require "sinatra"
-# require "sinatra/reloader"
-# also_reload('user.rb')
-
-@@users = [];
-@@user = nil;
-@@choices = [%w(login create_account)];
 
 class App
+  @choices = ['login', 'create_account'];
+  @users = [];
+  @user = nil;
+
   def self.user
-    @@user
+    @user
   end
   def self.users
-    @@users
+    @users
+  end
+  def self.choices
+    @choices
   end
 
   def self.login (name, password)
     user = self.current_user(name)
     if user && user.password === password
-      @@user = user
-      puts 'welcome ' + @@user.name
-      @@choices = [%w(transaction check_balance history logout)]
+      @user = user
+      puts 'welcome ' + @user.name
+      @choices = [%w(transaction check_balance history logout)]
     else
       puts "incorrect username or password"
+      @choices.push 'reset_password'
     end
   end
   def self.logout
-    puts 'goodbye ' + @@user.name
-    @@user = nil
-    @@choices = [%w(login create_account)]
+    puts 'goodbye ' + @user.name
+    @user = nil
+    @choices = [%w(login create_account)]
   end
 
-  def self.create_account(name, password)
-    new_user = User.new(name: name, password: password)
+  def self.create_account(name, password, security)
+    new_user = User.new(name: name, password: password, security: security)
     new_user.save
   end
 
   def self.check_balance
-    puts @@user.balance
+    puts @user.balance
   end
   def self.deposit(amount)
-    puts @@user.deposit(amount)
+    puts @user.deposit(amount)
   end
   def self.withdraw(amount)
-    puts @@user.withdraw(amount)
+    puts @user.withdraw(amount)
   end
   def self.history
-    puts @@user.history
+    puts 'transaction history for ' + @user.name
+    puts "\n"
+    @user.history.map do |transaction|
+      puts 'date: ' + transaction[:date].to_s
+      puts 'starting balance: ' + transaction[:starting_balance].to_s
+      puts 'transaction:' + transaction[:transaction].to_s
+      puts 'new balance: ' + transaction[:ending_balance].to_s
+      puts "\n"
+    end
+  end
+
+  def self.reset_password(name, security)
+    user = App.current_user(name)
+
+    if user && user.security === security
+      password = prompt.mask('enter new password')
+      user.password = password
+    end
   end
 
   def self.all
-    @@users
+    @users
   end
   def self.current_user(name)
-    @@users.select {|user| user.name === name}.first
+    @users.select {|user| user.name === name}.first
   end
 end
 
-test = User.new(name: "bob", password: "123")
+test = User.new(name: "bob", password: "123", security: "abc")
 test.save
 test2 = User.new(name: "bill", password: "123")
 test2.save
 
 test.deposit(100.00)
 test.deposit(-50.00)
-
-prompt = TTY::Prompt.new
-
-loop do
-  command = prompt.select("Select option", @@choices)
-  case command
-    when 'login'
-      name = prompt.ask('Username?')
-      password = prompt.ask('password?')
-      App.login(name, password)
-    when 'create_account'
-      name = prompt.ask('Username?')
-      password = prompt.ask('password?')
-      binding.pry
-      if !App.current_user(name)
-        App.create_account(name, password)
-      else
-        puts 'username already taken, select a new one'
-      end
-    when 'logout'
-      App.logout
-    when 'check_balance'
-      App.check_balance
-    when 'history'
-      App.history
-    when 'transaction'
-      transaction = prompt.select("Select option", [%w(deposit withdraw)])
-      amount = prompt.ask('Amount?').to_f.round(2)
-      if transaction === 'deposit'
-        App.deposit(amount)
-      elsif transaction === 'withdraw'
-        App.withdraw(amount)
-      end
-    else
-      puts 'invalid input'
-  end
-end
-
-# loop do
-#   input = gets.chomp
-#   command, *params = input.split /\s/
-#   case command
-#     when 'login'
-#       puts 'enter name'
-#       name = input
-#       puts name
-#
-#       # App.login('bob', '123')
-#     when 'check_balance'
-#       App.check_balance
-#     # when 'check'
-#     #   puts App.check_balance
-#     else
-#       puts 'Invalid command'
-#   end
-# end
