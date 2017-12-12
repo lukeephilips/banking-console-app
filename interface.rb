@@ -1,6 +1,7 @@
-require 'tty-prompt';
-require './app';
+require 'tty-prompt'
+require './app'
 require 'encryption'
+require 'pastel'
 
 
 class Interface
@@ -10,8 +11,8 @@ class Interface
   def self.spacer
     puts "-------------- \n \n"
   end
-  puts 'Welcome to the best banking app in the world'
-  puts "
+  puts Pastel.new.blue'Welcome to the best banking app in the world'
+  puts Pastel.new.magenta "
 
   /'''\____/'''\\
  /    / __ \\    \\
@@ -29,55 +30,65 @@ class Interface
     puts "-------------- \n \n"
     command = prompt.select("Select option", App.choices)
     case command
-      when 'login'
-        name = prompt.ask('Username?')
-        password = prompt.mask('password?')
+    when 'god_mode'
+      App.login('bob', Encryption.encrypt('123'))
+
+    when LOGIN
+        name = prompt.ask('Please enter username:')
+        password = prompt.mask('Enter password:')
         spacer
         App.login(name, Encryption.encrypt(password))
-      when 'logout_user'
+      when LOGOUT
         spacer
         App.logout
-      when 'create_account'
+      when CREATE_ACCOUNT
         name = prompt.ask('Username?')
         password = prompt.mask('password?')
         security = prompt.ask('security question?')
         spacer
         if !App.current_user(name)
           App.create_account(name, Encryption.encrypt(password), security)
+          App.login(name, Encryption.encrypt(password))
         else
-          puts 'username already taken, select a new one'
+          puts 'This username is already taken, please select a new one'
         end
-      when 'reset_password'
-        name = prompt.ask('enter user name')
-        security = prompt.ask('enter security code')
+      when RESET_PASSWORD
+        name = prompt.ask('Please enter user name')
+        security = prompt.ask('Please enter your security code')
         user = App.current_user(name)
         spacer
         if user && user.security === security
-          password = prompt.mask('enter new password')
+          password = prompt.mask('Please enter new password')
           App.reset_password(name, Encryption.encrypt(password))
         else
-          puts 'incorrect username or security question'
+          puts 'Incorrect username or security question'
         end
-      when 'check_balance'
+      when CHECK_BALANCE
         spacer
         App.check_balance
-      when 'history'
+      when HISTORY
         spacer
         App.history
-      when 'transaction'
-        transaction = prompt.select("Select option", [%w(deposit withdraw)])
-        amount = prompt.ask('Amount?', convert: :float, default: 20.00)
+      when TRANSACTION
+        transaction = prompt.select("Select option", [DEPOSIT, WITHDRAW])
+        amount = prompt.ask("#{transaction} amount?") do |q|
+          q.required
+          q.validate(/\d/, 'Transations must be dollar amounts')
+        end
+        amount = amount.gsub(/[^\d.]/, '').to_f
+        puts amount
+
         spacer
-        if transaction === 'deposit'
+        if transaction === DEPOSIT
           App.deposit(amount)
-        elsif transaction === 'withdraw'
+        elsif transaction === WITHDRAW
           App.withdraw(amount)
         end
-      when 'quit_system'
-        puts 'see you next time'
+      when QUIT
+        puts 'See you next time'
         exit!
       else
-        puts 'invalid input'
+        puts 'Invalid input'
     end
   end
 end

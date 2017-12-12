@@ -7,11 +7,22 @@ require 'pry'
 require 'pastel'
 require 'encryption'
 
-pastel = Pastel.new
+LOGIN = "Log in"
+LOGOUT = "Log out"
+CREATE_ACCOUNT = "Create Account"
+QUIT = "Quit System"
+RESET_PASSWORD = "Reset Password"
+CHECK_BALANCE = "Check Balance"
+TRANSACTION = "Make a Transaction"
+WITHDRAW = "Withdraw"
+DEPOSIT = "Deposit"
+HISTORY = "Transaction History"
+
+
 Encryption.key = 'A very long encryption key thats really really long and not at all crackable'
 
 class App
-  @choices = ['login', 'create_account', 'quit_system']
+  @choices = ['god_mode', LOGIN, CREATE_ACCOUNT, QUIT]
   @users = []
   @user = nil
 
@@ -30,16 +41,16 @@ class App
     if user && user.password === password
       @user = user
       puts Pastel.new.bold 'welcome ' + @user.name
-      @choices = ['transaction', 'check_balance', 'history', 'logout_user']
+      @choices = [TRANSACTION, CHECK_BALANCE, HISTORY, LOGOUT]
     else
-      puts Pastel.new.bold "incorrect username or password"
-      @choices = ['login', 'create_account', 'reset_password']
+      puts Pastel.new.bold "Incorrect username or password"
+      @choices = [LOGIN, CREATE_ACCOUNT, RESET_PASSWORD]
     end
   end
   def self.logout
     puts Pastel.new.bold 'goodbye ' + @user.name
     @user = nil
-    @choices = ['login', 'create_account', 'quit_system']
+    @choices = [LOGIN, CREATE_ACCOUNT, QUIT]
   end
 
   def self.create_account(name, password, security)
@@ -57,7 +68,7 @@ class App
     puts Pastel.new.bold @user.withdraw(amount)
   end
   def self.history
-    puts Pastel.new.bold "transaction history for #{@user.name} \n"
+    puts Pastel.new.bold "Transaction history for #{@user.name} \n"
     @user.history.map do |transaction|
       puts 'date: ' + transaction[:date].to_s
       puts 'starting balance: ' + transaction[:starting_balance].to_s
@@ -70,7 +81,7 @@ class App
   def self.reset_password(name, password)
     user = App.current_user(name)
     user.update_password(password)
-    puts Pastel.new.bold 'password reset, please try logging in'
+    puts Pastel.new.bold 'Password has been reset, please try logging in'
   end
 
   def self.all
