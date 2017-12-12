@@ -11,7 +11,7 @@ class Interface
   def self.spacer
     puts "-------------- \n \n"
   end
-  puts Pastel.new.blue'Welcome to the best banking app in the world'
+  puts Pastel.new.blue'Welcome to StompyBank'
   puts Pastel.new.magenta "
 
   /'''\____/'''\\
@@ -71,7 +71,7 @@ class Interface
         App.history
       when TRANSACTION
         transaction = prompt.select("Select option", [DEPOSIT, WITHDRAW])
-        amount = prompt.ask("#{transaction} amount?") do |q|
+        amount = prompt.ask("Amount to #{transaction}?") do |q|
           q.required
           q.validate(/\d/, 'Transations must be dollar amounts')
         end

@@ -1,11 +1,14 @@
 #!/usr/bin/env ruby
 
-require './user'
-require './interface'
 require 'tty-prompt'
+require 'tty-table'
+
 require 'pry'
 require 'pastel'
 require 'encryption'
+
+require './user'
+require './interface'
 
 LOGIN = "Log in"
 LOGOUT = "Log out"
@@ -18,7 +21,6 @@ WITHDRAW = "Withdraw"
 DEPOSIT = "Deposit"
 HISTORY = "Transaction History"
 
-
 Encryption.key = 'A very long encryption key thats really really long and not at all crackable'
 
 class App
@@ -26,14 +28,17 @@ class App
   @users = []
   @user = nil
 
+  def self.choices
+    @choices
+  end
   def self.user
     @user
   end
   def self.users
     @users
   end
-  def self.choices
-    @choices
+  def self.current_user(name)
+    @users.select {|user| user.name === name}.first
   end
 
   def self.login (name, password)
@@ -52,7 +57,6 @@ class App
     @user = nil
     @choices = [LOGIN, CREATE_ACCOUNT, QUIT]
   end
-
   def self.create_account(name, password, security)
     new_user = User.new(name: name, password: password, security: security)
     new_user.save
@@ -69,26 +73,17 @@ class App
   end
   def self.history
     puts Pastel.new.bold "Transaction history for #{@user.name} \n"
-    @user.history.map do |transaction|
-      puts 'date: ' + transaction[:date].to_s
-      puts 'starting balance: ' + transaction[:starting_balance].to_s
-      puts 'transaction:' + transaction[:transaction].to_s
-      puts 'new balance: ' + transaction[:ending_balance].to_s
-      puts "\n"
+    rows = @user.history.map do |transaction|
+      [transaction[:date].to_s, transaction[:starting_balance].to_s, transaction[:transaction].to_s, transaction[:ending_balance].to_s]
     end
+    table = TTY::Table.new ['Date','Starting Balance', 'Transaction', 'Ending Balance'], rows
+    puts table.render(:ascii)
   end
 
   def self.reset_password(name, password)
     user = App.current_user(name)
     user.update_password(password)
     puts Pastel.new.bold 'Password has been reset, please try logging in'
-  end
-
-  def self.all
-    @users
-  end
-  def self.current_user(name)
-    @users.select {|user| user.name === name}.first
   end
 end
 

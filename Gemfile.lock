@@ -5,7 +5,6 @@ GEM
     coderay (1.1.2)
     encryption (1.1.8)
     equatable (0.5.0)
-    ffi (1.9.18)
     hitimes (1.2.6)
     method_source (0.9.0)
     multi_json (1.12.2)
@@ -20,10 +19,6 @@ GEM
     rack (2.0.3)
     rack-protection (2.0.0)
       rack
-    rbnacl (5.0.0)
-      ffi
-    rbnacl-libsodium (1.0.15.1)
-      rbnacl (>= 3.0.1)
     sinatra (2.0.0)
       mustermann (~> 1.0)
       rack (~> 2.0)
@@ -49,6 +44,19 @@ GEM
       tty-reader (~> 0.1.0)
     tty-reader (0.1.0)
       wisper (~> 2.0.0)
+    tty-screen (0.6.3)
+    tty-table (0.9.0)
+      equatable (~> 0.5.0)
+      necromancer (~> 0.4.0)
+      pastel (~> 0.7.0)
+      tty-screen (~> 0.6.0)
+      unicode-display_width (~> 1.1.0)
+      verse (~> 0.5.0)
+    unicode-display_width (1.1.3)
+    unicode_utils (1.4.0)
+    verse (0.5.0)
+      unicode-display_width (~> 1.1.0)
+      unicode_utils (~> 1.4.0)
     wisper (2.0.0)
 
 PLATFORMS
@@ -58,10 +66,10 @@ DEPENDENCIES
   encryption
   pastel
   pry
-  rbnacl-libsodium
   sinatra
   sinatra-contrib
   tty-prompt
+  tty-table
 
 BUNDLED WITH
    1.14.6
