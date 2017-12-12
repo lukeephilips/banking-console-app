@@ -5,5 +5,6 @@ gem "sinatra-contrib"
 # gem "capybara"
 # gem "rspec"
 gem "pry"
-gem "thor"
-gem 'tty-prompt'
+gem "tty-prompt"
+gem "pastel"
+gem 'encryption'

@@ -19,6 +19,9 @@ class User
   def password
     @password
   end
+  def update_password(password)
+    @password = password
+  end
   def security
     @security
   end

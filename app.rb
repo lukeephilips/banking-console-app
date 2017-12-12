@@ -1,14 +1,19 @@
 #!/usr/bin/env ruby
 
-require './user';
-require './interface';
-require 'tty-prompt';
-require 'pry';
+require './user'
+require './interface'
+require 'tty-prompt'
+require 'pry'
+require 'pastel'
+require 'encryption'
+
+pastel = Pastel.new
+Encryption.key = 'A very long encryption key thats really really long and not at all crackable'
 
 class App
-  @choices = ['login', 'create_account'];
-  @users = [];
-  @user = nil;
+  @choices = ['login', 'create_account', 'quit_system']
+  @users = []
+  @user = nil
 
   def self.user
     @user
@@ -24,17 +29,17 @@ class App
     user = self.current_user(name)
     if user && user.password === password
       @user = user
-      puts 'welcome ' + @user.name
-      @choices = [%w(transaction check_balance history logout)]
+      puts Pastel.new.bold 'welcome ' + @user.name
+      @choices = ['transaction', 'check_balance', 'history', 'logout_user']
     else
-      puts "incorrect username or password"
-      @choices.push 'reset_password'
+      puts Pastel.new.bold "incorrect username or password"
+      @choices = ['login', 'create_account', 'reset_password']
     end
   end
   def self.logout
-    puts 'goodbye ' + @user.name
+    puts Pastel.new.bold 'goodbye ' + @user.name
     @user = nil
-    @choices = [%w(login create_account)]
+    @choices = ['login', 'create_account', 'quit_system']
   end
 
   def self.create_account(name, password, security)
@@ -43,17 +48,16 @@ class App
   end
 
   def self.check_balance
-    puts @user.balance
+    puts Pastel.new.bold @user.balance
   end
   def self.deposit(amount)
-    puts @user.deposit(amount)
+    puts Pastel.new.bold @user.deposit(amount)
   end
   def self.withdraw(amount)
-    puts @user.withdraw(amount)
+    puts Pastel.new.bold @user.withdraw(amount)
   end
   def self.history
-    puts 'transaction history for ' + @user.name
-    puts "\n"
+    puts Pastel.new.bold "transaction history for #{@user.name} \n"
     @user.history.map do |transaction|
       puts 'date: ' + transaction[:date].to_s
       puts 'starting balance: ' + transaction[:starting_balance].to_s
@@ -63,13 +67,10 @@ class App
     end
   end
 
-  def self.reset_password(name, security)
+  def self.reset_password(name, password)
     user = App.current_user(name)
-
-    if user && user.security === security
-      password = prompt.mask('enter new password')
-      user.password = password
-    end
+    user.update_password(password)
+    puts Pastel.new.bold 'password reset, please try logging in'
   end
 
   def self.all
@@ -80,9 +81,9 @@ class App
   end
 end
 
-test = User.new(name: "bob", password: "123", security: "abc")
+test = User.new(name: "bob", password: Encryption.encrypt("123"), security: "abc")
 test.save
-test2 = User.new(name: "bill", password: "123")
+test2 = User.new(name: "bill", password: Encryption.encrypt("123"))
 test2.save
 
 test.deposit(100.00)

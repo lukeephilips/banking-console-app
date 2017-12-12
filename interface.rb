@@ -1,75 +1,83 @@
 require 'tty-prompt';
 require './app';
+require 'encryption'
 
-prompt = TTY::Prompt.new
 
-loop do
-  command = prompt.select("Select option", App.choices)
-  case command
-    when 'login'
-      name = prompt.ask('Username?')
-      password = prompt.mask('password?')
-      App.login(name, password)
-    when 'logout'
-      App.logout
+class Interface
 
-    when 'create_account'
-      name = prompt.ask('Username?')
-      password = prompt.mask('password?')
-      security = prompt.ask('security question?')
+  Encryption.key = 'A very long encryption key thats really really long and not at all crackable'
+  prompt = TTY::Prompt.new
+  def self.spacer
+    puts "-------------- \n \n"
+  end
+  puts 'Welcome to the best banking app in the world'
+  puts "
 
-      if !App.current_user(name)
-        App.create_account(name, password, security)
+  /'''\____/'''\\
+ /    / __ \\    \\
+/    |  ..  |    \\
+\\___/|      |\\___/\\
+   | |_|  |_|      \\
+   | |/|__|\\|       \\
+   |   |__|         |\\
+   |   |__|   |_/  /  \\
+   | @ |  | @ || @ |   '
+   |   |~~|   ||   |
+   'ooo'  'ooo''ooo'
+"
+  loop do
+    puts "-------------- \n \n"
+    command = prompt.select("Select option", App.choices)
+    case command
+      when 'login'
+        name = prompt.ask('Username?')
+        password = prompt.mask('password?')
+        spacer
+        App.login(name, Encryption.encrypt(password))
+      when 'logout_user'
+        spacer
+        App.logout
+      when 'create_account'
+        name = prompt.ask('Username?')
+        password = prompt.mask('password?')
+        security = prompt.ask('security question?')
+        spacer
+        if !App.current_user(name)
+          App.create_account(name, Encryption.encrypt(password), security)
+        else
+          puts 'username already taken, select a new one'
+        end
+      when 'reset_password'
+        name = prompt.ask('enter user name')
+        security = prompt.ask('enter security code')
+        user = App.current_user(name)
+        spacer
+        if user && user.security === security
+          password = prompt.mask('enter new password')
+          App.reset_password(name, Encryption.encrypt(password))
+        else
+          puts 'incorrect username or security question'
+        end
+      when 'check_balance'
+        spacer
+        App.check_balance
+      when 'history'
+        spacer
+        App.history
+      when 'transaction'
+        transaction = prompt.select("Select option", [%w(deposit withdraw)])
+        amount = prompt.ask('Amount?', convert: :float, default: 20.00)
+        spacer
+        if transaction === 'deposit'
+          App.deposit(amount)
+        elsif transaction === 'withdraw'
+          App.withdraw(amount)
+        end
+      when 'quit_system'
+        puts 'see you next time'
+        exit!
       else
-        puts 'username already taken, select a new one'
-      end
-
-    when 'reset_password'
-      name = prompt.ask('enter user name')
-      security = prompt.ask('enter security code')
-      App.reset_password(name, security)
-
-    when 'check_balance'
-      App.check_balance
-    when 'history'
-      App.history
-    when 'transaction'
-      transaction = prompt.select("Select option", [%w(deposit withdraw)])
-      amount = prompt.ask('Amount?', convert: :float, default: 20.00)
-      if transaction === 'deposit'
-        App.deposit(amount)
-      elsif transaction === 'withdraw'
-        App.withdraw(amount)
-      end
-    else
-      puts 'invalid input'
+        puts 'invalid input'
+    end
   end
 end
-
-# class Interface
-#   desc "login", "login"
-#   def login (name, pasword)
-#     App.login(name, pasword)
-#   end
-#
-#   desc 'logout', 'logout'
-#   def logout
-#     App.logout
-#   end
-#
-#   desc 'create', 'create'
-#   def create(name, password)
-#     App.create_account(name, password)
-#   end
-#
-#   desc 'test', 'test'
-#   def test(first, second)
-#     puts "first: " + first
-#     puts "second: " + second
-#   end
-#
-#   desc 'check_balance', 'check_balance'
-#   def check_balance
-#     App.check_balance
-#   end
-# end
