@@ -1,7 +1,7 @@
-require 'tty-prompt'
-require './app'
-require 'encryption'
-require 'pastel'
+require ('tty-prompt')
+require ('encryption')
+require ('pastel')
+require ('./app')
 
 LOGIN = "Log in"
 LOGOUT = "Log out"
@@ -50,7 +50,7 @@ class Interface
     case command
     when 'god_mode'
       App.login('bob', Encryption.encrypt('123'))
-
+      @choices = [TRANSACTION, CHECK_BALANCE, HISTORY, LOGOUT]
     when LOGIN
         name = prompt.ask('Please enter username:', required: true)
         password = prompt.mask('Enter password:', required: true)

@@ -2,7 +2,6 @@
 
 require 'tty-prompt'
 require 'tty-table'
-
 require 'pry'
 require 'pastel'
 require 'encryption'
@@ -34,6 +33,7 @@ class App
   def self.logout
     @user = nil
   end
+
   def self.create_account(name, password, security)
     if !current_user(name)
       new_user = User.new(name: name, password: password, security: security)
@@ -42,6 +42,7 @@ class App
       return "username taken"
     end
   end
+
   def self.reset_password(name, new_password, security)
     user = App.current_user(name)
     if user.security === security

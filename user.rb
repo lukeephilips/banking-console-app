@@ -49,6 +49,6 @@ class User
   end
 
   def save_history(type, amount, new_balance)
-    @history.push(type: type, transaction: amount, starting_balance: @balance, ending_balance: new_balance, date: Date.today)
+    @history.push(type: type, transaction: amount.to_f, starting_balance: @balance.to_f, ending_balance: new_balance.to_f, date: Date.today)
   end
 end

@@ -1,7 +1,7 @@
 require('rspec')
 require('pry')
 
-require './app'
+require ('./app')
 
 describe 'account management' do
  it('creates an account') do
@@ -15,6 +15,11 @@ describe 'account management' do
  end
  it('logs out') do
    App.logout
+   expect(App.user).to eq(nil)
+ end
+ it('does not log in with incorrect password') do
+   App.login('frank', 'xyz')
+
    expect(App.user).to eq(nil)
  end
  it('does not create dupe account') do
