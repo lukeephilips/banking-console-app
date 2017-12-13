@@ -26,7 +26,7 @@ class User
     @security
   end
   def balance
-    return "user: #{@name} \nbalance: #{@balance.to_s}"
+    return @balance
   end
   def history
     return @history
@@ -34,21 +34,21 @@ class User
 
   def deposit(amount)
     new_balance = @balance + amount
-    save_history(amount, new_balance)
+    save_history("deposit", amount, new_balance)
 
     return @balance = new_balance
   end
   def withdraw(amount)
     new_balance = @balance - amount
     if new_balance > 0
-      save_history(-amount, new_balance)
+      save_history("withdrawal", -amount, new_balance)
       return @balance = new_balance
     else
       puts "nonsufficient funds"
     end
   end
 
-  def save_history(amount, new_balance)
-    @history.push(transaction: -amount, starting_balance: @balance, ending_balance: new_balance, date: Date.today)
+  def save_history(type, amount, new_balance)
+    @history.push(type: type, transaction: amount, starting_balance: @balance, ending_balance: new_balance, date: Date.today)
   end
 end
