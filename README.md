@@ -3,7 +3,7 @@
 #### By _*Luke Philips*_
 
 ## Description
-A banking application to be accessed via the console. Made with Ruby, using Money gem for currency exchange and BigDecimal/String conversions, TTY gem for terminal formatting, Encryption gem for OpenSSL Cipher library.
+A banking application to be accessed via the console. Made with Ruby, using Money gem for currency exchange and BigDecimal/String conversions, TTY gem for terminal formatting (prompts, colors, tables), Encryption gem for OpenSSL Cipher library.
 
 Required features:
 -Create a new account

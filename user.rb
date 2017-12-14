@@ -1,14 +1,4 @@
 # User object contains environmental variables to store user data. Could be refactored to call a user database table.
-require "date"
-require "money"
-
-Money.use_i18n = false
-Money.add_rate("USD", "EUR", 0.84)
-Money.add_rate("EUR", "USD", 1.18)
-Money.add_rate("USD", "GBP", 0.74)
-Money.add_rate("GBP", "USD", 1.34)
-Money.add_rate("EUR", "GBP", 0.88)
-Money.add_rate("GBP", "EUR", 1.13)
 
 class User
   def initialize attr

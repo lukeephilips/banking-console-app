@@ -1,14 +1,22 @@
 #!/usr/bin/env ruby
 
-require "tty-prompt"
-require "tty-table"
-require "pry"
-require "pastel"
-require "encryption"
-
-require "./user"
+require("tty-prompt")
+require("tty-table")
+require("pry")
+require("encryption")
+require("money")
+require("date")
+require("./user")
 
 # Top level App singleton object can be called by terminal interface, test suite or by a browser (in the future). Contains passthrough functions calling business logic on User object
+
+Money.use_i18n = false
+Money.add_rate("USD", "EUR", 0.84)
+Money.add_rate("EUR", "USD", 1.18)
+Money.add_rate("USD", "GBP", 0.74)
+Money.add_rate("GBP", "USD", 1.34)
+Money.add_rate("EUR", "GBP", 0.88)
+Money.add_rate("GBP", "EUR", 1.13)
 
 class App
   @users = []

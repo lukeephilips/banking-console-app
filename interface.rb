@@ -1,6 +1,3 @@
-require("tty-prompt")
-require("encryption")
-require("pastel")
 require("./app")
 
 # Interface object controls interface and calls App object.
@@ -17,10 +14,9 @@ DEPOSIT = "Deposit"
 HISTORY = "Transaction History"
 SEARCH = "Search for a User"
 
-Encryption.key = "A very long encryption key thats really really long and not at all crackable"
+# Encryption.key = "A very long encryption key thats really really long and not at all crackable"
 
 class Interface
-  pastel = Pastel.new
   prompt = TTY::Prompt.new
   @choices = [LOGIN, CREATE_ACCOUNT, QUIT]
 
@@ -67,7 +63,7 @@ class Interface
         end
       when LOGOUT
         spacer
-        prompt.say("Goodbye " + App.user.name, color: bold)
+        prompt.say("Goodbye " + App.user.name, color: :bold)
         App.logout
         @choices = [LOGIN, CREATE_ACCOUNT, QUIT]
 
@@ -140,7 +136,7 @@ class Interface
         table = TTY::Table.new(["Date", "Type", "Starting Balance", "Transaction", "Ending Balance"], App.history)
         prompt.say(table.render(:ascii))
       when QUIT
-        prompt.say("See you next time")
+        prompt.say("See you next time", color: :bold)
         exit!
       else
         prompt.error("Invalid input")
