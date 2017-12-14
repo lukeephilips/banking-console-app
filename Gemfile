@@ -6,6 +6,7 @@ gem "sinatra-contrib"
 # gem "rspec"
 gem "pry"
 gem "tty-prompt"
-gem 'tty-table'
+gem "tty-table"
 gem "pastel"
-gem 'encryption'
+gem "encryption"
+gem "money"

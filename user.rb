@@ -1,12 +1,19 @@
+# User object contains environmental variables to store user data. Could be refactored to call a user database table.
+require "date"
+require "bigdecimal"
+require "money"
+
+Money.use_i18n = false
+
 class User
-  require 'date';
 
   def initialize attr
     @name = attr[:name]
     @password = attr[:password]
-    @balance = 0.00
-    @history = [];
-    @security = attr[:security];
+    @currency = attr[:currency]
+    @balance = Money.new(0, @currency)
+    @history = []
+    @security = attr[:security]
   end
 
   def save
@@ -19,28 +26,33 @@ class User
   def password
     @password
   end
-  def update_password(password)
-    @password = password
+  def balance
+    @balance
+  end
+  def history
+    @history
   end
   def security
     @security
   end
-  def balance
-    return @balance
+  def currency
+    @currency
   end
-  def history
-    return @history
+  def update_password(password)
+    @password = password
   end
 
   def deposit(amount)
+    amount = Money.new(amount * 100, @currency)
     new_balance = @balance + amount
     save_history("deposit", amount, new_balance)
 
     return @balance = new_balance
   end
   def withdraw(amount)
+    amount = Money.new(amount* 100, @currency)
     new_balance = @balance - amount
-    if new_balance > 0
+    if new_balance > Money.new(0, @currency)
       save_history("withdrawal", -amount, new_balance)
       return @balance = new_balance
     else
@@ -49,6 +61,6 @@ class User
   end
 
   def save_history(type, amount, new_balance)
-    @history.push(type: type, transaction: amount.to_f, starting_balance: @balance.to_f, ending_balance: new_balance.to_f, date: Date.today)
+    @history.push(type: type, transaction: amount, starting_balance: @balance, ending_balance: new_balance, date: Date.today)
   end
 end

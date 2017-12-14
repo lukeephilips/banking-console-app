@@ -1,8 +1,9 @@
-require ('tty-prompt')
-require ('encryption')
-require ('pastel')
-require ('./app')
+require ("tty-prompt")
+require ("encryption")
+require ("pastel")
+require ("./app")
 
+# Interface object controls interface and calls App object and controls
 LOGIN = "Log in"
 LOGOUT = "Log out"
 CREATE_ACCOUNT = "Create Account"
@@ -13,13 +14,14 @@ TRANSACTION = "Make a Transaction"
 WITHDRAW = "Withdraw"
 DEPOSIT = "Deposit"
 HISTORY = "Transaction History"
+SEARCH = "Search for a User"
 
-Encryption.key = 'A very long encryption key thats really really long and not at all crackable'
+Encryption.key = "A very long encryption key thats really really long and not at all crackable"
 
 pastel = Pastel.new
 class Interface
   prompt = TTY::Prompt.new
-  @choices = ['god_mode', LOGIN, CREATE_ACCOUNT, QUIT]
+  @choices = [LOGIN, CREATE_ACCOUNT, QUIT]
 
   def self.choices
     @choices
@@ -29,7 +31,7 @@ class Interface
     puts "-------------- \n \n"
   end
 
-  puts Pastel.new.blue'Welcome to StompyBank'
+  puts Pastel.new.blue"Welcome to StompyBank"
   puts Pastel.new.magenta "
 
   /'''\____/''''\\
@@ -44,20 +46,19 @@ class Interface
    |   |~~|   ||   |
    'ooo'  'ooo''ooo'
 "
+# Creates feedback loop with terminal using switch statement for command options
+
   loop do
     puts "-------------- \n \n"
     command = prompt.select("Select option", @choices)
     case command
-    when 'god_mode'
-      App.login('bob', Encryption.encrypt('123'))
-      @choices = [TRANSACTION, CHECK_BALANCE, HISTORY, LOGOUT]
     when LOGIN
-        name = prompt.ask('Please enter username:', required: true)
-        password = prompt.mask('Enter password:', required: true)
+        name = prompt.ask("Please enter username:", required: true)
+        password = prompt.mask("Enter password:", required: true)
         spacer
 
         if App.login(name, Encryption.encrypt(password))
-          puts Pastel.new.bold 'welcome ' + App.user.name
+          puts Pastel.new.bold "welcome " + App.user.name
           @choices = [TRANSACTION, CHECK_BALANCE, HISTORY, LOGOUT]
         else
           puts Pastel.new.bold "Incorrect username or password"
@@ -65,36 +66,37 @@ class Interface
         end
       when LOGOUT
         spacer
-        puts Pastel.new.bold 'goodbye ' + App.user.name
+        puts Pastel.new.bold "goodbye " + App.user.name
         App.logout
         @choices = [LOGIN, CREATE_ACCOUNT, QUIT]
 
       when CREATE_ACCOUNT
-        name = prompt.ask('Please select a Username:', required: true)
+        name = prompt.ask("Please select a Username:", required: true)
         if !App.current_user(name)
-          password = prompt.mask('Please set a password:', required: true)
-          security = prompt.ask('Please set an account security code:', required: true)
+          password = prompt.mask("Please set a password:", required: true)
+          security = prompt.ask("Please set a password reset security code:", required: true)
+          currency = prompt.select("Select currency", ["USD", "GBP", "EUR"])
 
-          App.create_account(name, Encryption.encrypt(password), security)
+          App.create_account(name, Encryption.encrypt(password), security, currency)
           App.login(name, Encryption.encrypt(password))
-          puts Pastel.new.bold 'welcome ' + App.user.name
+          puts Pastel.new.bold "welcome " + App.user.name
           @choices = [TRANSACTION, CHECK_BALANCE, HISTORY, LOGOUT]
           spacer
         else
-          puts 'This username is already taken, please select a new one'
+          puts "This username is already taken, please select a new one"
         end
 
       when RESET_PASSWORD
-        name = prompt.ask('Please enter user name')
-        security = prompt.ask('Please enter your security code')
+        name = prompt.ask("Please enter user name")
+        security = prompt.ask("Please enter your security code")
         user = App.current_user(name)
         spacer
         if user && user.security === security
-          password = prompt.mask('Please enter new password')
+          password = prompt.mask("Please enter new password")
           App.reset_password(name, Encryption.encrypt(password), security)
-          puts Pastel.new.bold 'Password has been reset, please try logging in'
+          puts Pastel.new.bold "Password has been reset, please try logging in"
         else
-          puts 'Incorrect username or security question'
+          puts "Incorrect username or security question"
         end
 
       when CHECK_BALANCE
@@ -102,30 +104,37 @@ class Interface
         puts Pastel.new.bold "user: #{App.user.name} \nbalance: #{App.check_balance}"
       when TRANSACTION
         transaction = prompt.select("Select option", [DEPOSIT, WITHDRAW])
-        amount = prompt.ask("Amount to #{transaction}?") do |q|
-          q.required
-          q.validate(/\d/, 'Transations must be dollar amounts')
+        amount = prompt.ask("Amount to #{transaction}? (Or hit enter to go back)") do |q|
+          # q.required
+          # q.validate(/\d/, "Transations must be dollar amounts")
         end
-        amount = amount.gsub(/[^\d.]/, '').to_f
-        puts amount
-        spacer
+        amount = amount.gsub(/[^\d.]/, "").to_f
+        if amount
+          puts amount
+          spacer
 
-        if transaction === DEPOSIT
-          puts Pastel.new.bold App.deposit(amount)
-        elsif transaction === WITHDRAW
-          puts Pastel.new.bold App.withdraw(amount)
+          if transaction === DEPOSIT
+            puts Pastel.new.bold App.deposit(amount)
+          elsif transaction === WITHDRAW
+            puts Pastel.new.bold App.withdraw(amount)
+          end
         end
       when HISTORY
         spacer
         puts Pastel.new.bold "Transaction history for #{App.user.name} \n"
 
-        table = TTY::Table.new ['Date', 'Type', 'Starting Balance', 'Transaction', 'Ending Balance'], App.history
+        table = TTY::Table.new ["Date", "Type", "Starting Balance", "Transaction", "Ending Balance"], App.history
         puts table.render(:ascii)
+      # when ADMIN
+      #   @choices = [SEARCH, CREATE_ACCOUNT, QUIT]
+      # when SEARCH
+      #   name = prompt.ask("Please enter user name")
+      #   security = prompt.ask("Please enter your security code")
       when QUIT
-        puts 'See you next time'
+        puts "See you next time"
         exit!
       else
-        puts 'Invalid input'
+        puts "Invalid input"
     end
   end
 end
