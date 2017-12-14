@@ -3,21 +3,22 @@
 #### By _*Luke Philips*_
 
 ## Description
-A banking application to be accessed via the console. Made with Ruby, using TTY gem for terminal formatting, Encryption gem for OpenSSL Cipher library.
+A banking application to be accessed via the console. Made with Ruby, using Money gem for currency exchange and BigDecimal/String conversions, TTY gem for terminal formatting, Encryption gem for OpenSSL Cipher library.
 
-Allows a user to:
+Required features:
 -Create a new account
 -Login
 -Record a deposit
 -Record a withdrawal
 -Check balance
 -See transaction history
--Reset password
 -Log out
 
-Allows admin user to:
--View all accounts
--Backdoor access to all features of any given account
+Additional features:
+-User can reset password after incorrectly entering their Password
+-User can make transactions in US dollars, Euros, or Pounds.
+-User can set their base currency
+-User "bob", password "123" displays account balance with transactions in multiple currencies
 
 ## Setup/Installation Requirements
 

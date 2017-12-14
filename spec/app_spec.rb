@@ -9,12 +9,9 @@ describe "account management" do
    expect(App.users[2].name).to eq("frank")
    expect(App.users[2].currency).to eq("USD")
    expect(App.users[0].currency).to eq("USD")
-
-
  end
  it("creates an account with EUR as currency") do
    App.create_account("franko", "123", "abc", "EUR")
-   binding.pry
    expect(App.users[3].name).to eq("franko")
    expect(App.users[3].balance.format).to eq("€0,00")
 
@@ -70,7 +67,11 @@ describe "account transactions" do
     App.withdraw(100)
     expect(App.check_balance).to eq("$50.00")
   end
+  it("makes a withdrawal in the currency of choice") do
+    App.withdraw(10, "EUR")
+    expect(App.history.last[3]).to eq("€-10,00")
+  end
   it("views account history") do
-    expect(App.history.count).to eq(2)
+    expect(App.history.count).to eq(3)
   end
 end

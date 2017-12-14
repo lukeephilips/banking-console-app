@@ -8,7 +8,7 @@ require "encryption"
 
 require "./user"
 
-# Top level App singleton object can be called by terminal interface, test suite or by a browser. Contains passthrough functions calling business logic on User object
+# Top level App singleton object can be called by terminal interface, test suite or by a browser (in the future). Contains passthrough functions calling business logic on User object
 
 class App
   @users = []
@@ -20,12 +20,12 @@ class App
   def self.users
     @users
   end
-  def self.current_user(name)
+  def self.registered_user(name)
     @users.select {|user| user.name === name}.first
   end
 
   def self.login (name, password)
-    user = self.current_user(name)
+    user = self.registered_user(name)
     if user && user.password === password
       return @user = user
     end
@@ -34,8 +34,9 @@ class App
     @user = nil
   end
 
+# default currency set as USD if one is not provided
   def self.create_account(name, password, security, currency = "USD")
-    if !current_user(name)
+    if !registered_user(name)
       new_user = User.new(name: name, password: password, security: security, currency: currency)
       new_user.save
     else
@@ -44,7 +45,7 @@ class App
   end
 
   def self.reset_password(name, new_password, security)
-    user = App.current_user(name)
+    user = App.registered_user(name)
     if user.security === security
       user.update_password(new_password)
       return user
@@ -56,11 +57,13 @@ class App
   def self.check_balance
     @user.balance.format
   end
-  def self.deposit(amount)
-    @user.deposit(amount)
+
+  # default currency set as USD if none provided
+  def self.deposit(amount, currency = "USD")
+    @user.deposit(amount, currency)
   end
-  def self.withdraw(amount)
-    @user.withdraw(amount)
+  def self.withdraw(amount, currency = "USD")
+    @user.withdraw(amount, currency)
   end
   def self.history
     return rows = @user.history.map do |transaction|
@@ -80,6 +83,9 @@ existing_account2.save
 existing_account.deposit(100.00)
 existing_account.deposit(150.21)
 existing_account.withdraw(50.00)
+existing_account.withdraw(20.00, "EUR")
+existing_account.withdraw(20.00, "EUR")
+
 
 existing_account2.deposit(100.00)
 existing_account2.deposit(25.00)
