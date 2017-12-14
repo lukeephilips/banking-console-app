@@ -20,8 +20,9 @@ Additional features:
 -User can set their base currency
 -User "bob", password "123" displays account balance with transactions in multiple currencies
 -Unit testing suite (run from the terminal with `rspec`)
-## Setup/Installation Requirements
 
+## Setup/Installation Requirements
+* requires Ruby
 * Clone this repo: `https://github.com/lukeephilips/banking-console-app`
 * From new directory:
 * Install gems: `bundle install`

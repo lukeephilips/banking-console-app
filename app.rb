@@ -8,7 +8,7 @@ require("money")
 require("date")
 require("./user")
 
-# Top level App singleton object can be called by terminal interface, test suite or by a browser (in the future). Contains passthrough functions calling business logic on User object
+# Top level App singleton object can be called by terminal interface, test suite or by a browser (in the future). Functions as a controller with passthrough functions calling business logic on User object. There is a lot of redundancy, but it creates strict separation between the interface and User model - a good refactor would be to implement RESTful routing and make it a more normal controller.
 
 Money.use_i18n = false
 Money.add_rate("USD", "EUR", 0.84)
