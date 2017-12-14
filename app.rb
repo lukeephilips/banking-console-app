@@ -75,9 +75,9 @@ end
 # Seeding pre-existing user accounts
 Encryption.key = "A very long encryption key thats really really long and not at all crackable"
 
-existing_account = User.new(name: "bob", password: Encryption.encrypt("123"), security: "abc", currency: "USD")
+existing_account = User.new(name: "bob", password: Encryption.encrypt("1234"), security: "abc", currency: "USD")
 existing_account.save
-existing_account2 = User.new(name: "bill", password: Encryption.encrypt("123"), currency: "EUR")
+existing_account2 = User.new(name: "bill", password: Encryption.encrypt("1234"), currency: "EUR")
 existing_account2.save
 
 existing_account.deposit(100.00)

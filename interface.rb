@@ -62,7 +62,7 @@ class Interface
           puts pastel.bold "Welcome " + App.user.name
           @choices = [TRANSACTION, CHECK_BALANCE, HISTORY, LOGOUT]
         else
-          puts pastel.bold "Incorrect username or password"
+          puts pastel.bold.red("Incorrect username or password")
           @choices = [LOGIN, CREATE_ACCOUNT, RESET_PASSWORD]
         end
       when LOGOUT
@@ -87,7 +87,7 @@ class Interface
           @choices = [TRANSACTION, CHECK_BALANCE, HISTORY, LOGOUT]
           spacer
         else
-          puts "This username is already taken, please select a new one"
+          puts pastel.bold.red("This username is already taken, please select a new one")
         end
 
 # User only given option to reset password after incorrectly entering password
@@ -99,9 +99,9 @@ class Interface
         if user && user.security === security
           password = prompt.mask("Please enter new password")
           App.reset_password(name, Encryption.encrypt(password), security)
-          puts pastel.bold "Password has been reset, please try log in"
+          puts pastel.bold("Password has been reset, please try log in")
         else
-          puts "Incorrect username or security question"
+          puts pastel.red("Incorrect username or security question")
         end
 
       when CHECK_BALANCE
@@ -112,14 +112,14 @@ class Interface
         transaction = prompt.select("Select option", [DEPOSIT, WITHDRAW])
         currency = prompt.select("Select currency", ["USD", "EUR", "GBP"])
         amount = prompt.ask("Amount to #{transaction}?") do |q|
-          q.validate(/\d/, "Transations must be dollar amounts")
         end
         amount = amount.gsub(/[^\d.]/, "").to_f
 
         if amount
-          if transaction === DEPOSIT
+          confirm = prompt.yes?("Please confirm: #{transaction} "+ Money.new(amount * 100, currency).format)
+          if transaction === DEPOSIT && confirm
             puts pastel.bold "Account Balance: " + App.deposit(amount, currency).format
-          elsif transaction === WITHDRAW
+          elsif transaction === WITHDRAW && confirm
             puts pastel.bold "Account Balance: " + App.withdraw(amount, currency).format
           end
         end
@@ -133,7 +133,7 @@ class Interface
         puts "See you next time"
         exit!
       else
-        puts "Invalid input"
+        puts pastel.red("Invalid input")
     end
   end
 end
