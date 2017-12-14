@@ -51,8 +51,8 @@ class User
     amount = Money.new(amount * 100, currency)
     new_balance = @balance + amount
     save_history("deposit", amount, new_balance)
-
-    return @balance = new_balance
+    @balance = new_balance
+    return amount
   end
   def withdraw(amount, currency = @currrency)
     amount = Money.new(amount* 100, currency)
@@ -60,9 +60,8 @@ class User
 # user can not overdraw
     if new_balance > Money.new(0, @currency)
       save_history("withdrawal", -amount, new_balance)
-      return @balance = new_balance
-    else
-      puts "nonsufficient funds"
+      @balance = new_balance
+      return amount
     end
   end
 

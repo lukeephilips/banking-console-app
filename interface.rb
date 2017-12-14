@@ -32,8 +32,8 @@ class Interface
     puts "-------------- \n \n"
   end
 
-  puts pastel.blue"Welcome to StompyBank"
-  puts pastel.magenta "
+  prompt.say("Welcome to StompyBank", color: :blue)
+  prompt.say("
 
   /'''\____/''''\\
  /    / __ \\    \\
@@ -46,11 +46,11 @@ class Interface
    | @ |  | @ || @ |   '
    |   |~~|   ||   |
    'ooo'  'ooo''ooo'
-"
+", color: :magenta)
 # Creates feedback loop with terminal using switch statement for command options
 
   loop do
-    puts "-------------- \n \n"
+    prompt.say("-------------- \n \n")
     command = prompt.select("Select option", @choices)
     case command
     when LOGIN
@@ -59,15 +59,15 @@ class Interface
         spacer
 
         if App.login(name, Encryption.encrypt(password))
-          puts pastel.bold "Welcome " + App.user.name
+          prompt.say("Welcome " + App.user.name, color: :bold)
           @choices = [TRANSACTION, CHECK_BALANCE, HISTORY, LOGOUT]
         else
-          puts pastel.bold.red("Incorrect username or password")
+          prompt.error("Incorrect username or password")
           @choices = [LOGIN, CREATE_ACCOUNT, RESET_PASSWORD]
         end
       when LOGOUT
         spacer
-        puts pastel.bold "Goodbye " + App.user.name
+        prompt.say("Goodbye " + App.user.name, color: bold)
         App.logout
         @choices = [LOGIN, CREATE_ACCOUNT, QUIT]
 
@@ -83,11 +83,11 @@ class Interface
 
           App.create_account(name, Encryption.encrypt(password), security, currency)
           App.login(name, Encryption.encrypt(password))
-          puts pastel.bold "Welcome " + App.user.name
+          prompt.say("Welcome " + App.user.name, color: :bold)
           @choices = [TRANSACTION, CHECK_BALANCE, HISTORY, LOGOUT]
           spacer
         else
-          puts pastel.bold.red("This username is already taken, please select a new one")
+          prompt.error("This username is already taken, please select a new one")
         end
 
 # User only given option to reset password after incorrectly entering password
@@ -99,41 +99,51 @@ class Interface
         if user && user.security === security
           password = prompt.mask("Please enter new password")
           App.reset_password(name, Encryption.encrypt(password), security)
-          puts pastel.bold("Password has been reset, please try log in")
+          prompt.say("Password has been reset, please try log in", color: :bold)
         else
-          puts pastel.red("Incorrect username or security question")
+          prompt.error("Incorrect username or security question")
         end
 
       when CHECK_BALANCE
         spacer
-        puts pastel.bold "User: #{App.user.name} \nBalance: #{App.check_balance}"
+        prompt.say("User: #{App.user.name} \nBalance: #{App.check_balance}", color: :bold)
 # transactions can be in US dollars, Euros, or Pounds
       when TRANSACTION
         transaction = prompt.select("Select option", [DEPOSIT, WITHDRAW])
         currency = prompt.select("Select currency", ["USD", "EUR", "GBP"])
         amount = prompt.ask("Amount to #{transaction}?") do |q|
+          q.required
+          q.validate(/\d/, 'Transations must be dollar amounts')
         end
         amount = amount.gsub(/[^\d.]/, "").to_f
 
         if amount
           confirm = prompt.yes?("Please confirm: #{transaction} "+ Money.new(amount * 100, currency).format)
           if transaction === DEPOSIT && confirm
-            puts pastel.bold "Account Balance: " + App.deposit(amount, currency).format
+            prompt.say("Transaction: " + App.deposit(amount, currency).format, color: :bold)
+            prompt.say("Account Balance: " + App.check_balance, color: :bold)
+
           elsif transaction === WITHDRAW && confirm
-            puts pastel.bold "Account Balance: " + App.withdraw(amount, currency).format
+            if App.withdraw(amount, currency)
+              prompt.say("Transaction: " + Money.new(-amount * 100, currency).format, color: :bold)
+              prompt.say("Account Balance: " + App.check_balance, color: :bold)
+            else
+              prompt.error("Nonsufficient Funds")
+              prompt.say("Account Balance: " + App.check_balance, color: :bold)
+            end
           end
         end
       when HISTORY
         spacer
-        puts pastel.bold "Transaction history for #{App.user.name} \n"
+        prompt.say("Transaction history for #{App.user.name} \n", color: :bold)
 
-        table = TTY::Table.new ["Date", "Type", "Starting Balance", "Transaction", "Ending Balance"], App.history
-        puts table.render(:ascii)
+        table = TTY::Table.new(["Date", "Type", "Starting Balance", "Transaction", "Ending Balance"], App.history)
+        prompt.say(table.render(:ascii))
       when QUIT
-        puts "See you next time"
+        prompt.say("See you next time")
         exit!
       else
-        puts pastel.red("Invalid input")
+        prompt.error("Invalid input")
     end
   end
 end

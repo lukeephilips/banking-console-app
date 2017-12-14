@@ -19,7 +19,7 @@ Additional features:
 -User can make transactions in US dollars, Euros, or Pounds.
 -User can set their base currency
 -User "bob", password "123" displays account balance with transactions in multiple currencies
-
+-Unit testing suite (run from the terminal with `rspec`)
 ## Setup/Installation Requirements
 
 * Clone this repo: `https://github.com/lukeephilips/banking-console-app`
