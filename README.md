@@ -18,7 +18,7 @@ Additional features:
 -User can reset password after incorrectly entering their Password
 -User can make transactions in US dollars, Euros, or Pounds.
 -User can set their base currency
--User "bob", password "123" displays account balance with transactions in multiple currencies
+-User "bob", password "1234" displays account balance with transactions in multiple currencies
 -Unit testing suite (run from the terminal with `rspec`)
 
 ## Setup/Installation Requirements
